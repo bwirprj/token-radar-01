@@ -34,6 +34,18 @@ function arg(name: string, fallback: string): string {
   return withEquals === undefined ? fallback : withEquals.slice(name.length + 3);
 }
 
+/** Extra guard: every row must be a known slug, appear once, and never be a duplicate snapshot. */
+function boardSanity(rows: { slug: string }[], protocols: { slug: string }[]): string | null {
+  const known = new Set(protocols.map((p) => p.slug));
+  const seen = new Set<string>();
+  for (const row of rows) {
+    if (!known.has(row.slug)) return `unknown slug ${row.slug}`;
+    if (seen.has(row.slug)) return `duplicate slug ${row.slug}`;
+    seen.add(row.slug);
+  }
+  return null;
+}
+
 const inputArg = arg('input', '/input');
 const inputFile = inputArg.endsWith('.json') ? inputArg : join(inputArg, 'snapshot.json');
 if (!existsSync(inputFile)) {
@@ -47,6 +59,11 @@ const { board, radar } = buildRadar(snapshot);
 const issue = boardIssue(board, snapshot);
 if (issue !== null) {
   process.stderr.write(`token radar: the model wrote a board the gate refuses: ${issue}\n`);
+  process.exit(1);
+}
+const sanity = boardSanity(board, snapshot.protocols);
+if (sanity !== null) {
+  process.stderr.write(`token radar: board sanity failed: ${sanity}\n`);
   process.exit(1);
 }
 

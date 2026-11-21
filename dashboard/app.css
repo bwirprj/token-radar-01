@@ -83,3 +83,5 @@ dialog.detail::backdrop { background: rgba(15,27,45,0.42); }
 .steps li { margin-bottom: 12px; }
 .steps b { display: block; }
 .steps .cost { color: var(--ink-3); font-size: 12px; }
+.steps li:last-child { margin-bottom: 0; }
+.formula { white-space: pre; }
