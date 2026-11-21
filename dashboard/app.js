@@ -153,11 +153,26 @@
       )
     );
   }
+  function distribution() {
+    var top = DATA.rows.slice(0, 12);
+    var max = top[0] ? top[0].implied_value_usd : 1;
+    var box = el('div', { class: 'chart' }, el('h2', { text: 'Implied value, top 12 protocols' }));
+    top.forEach(function (r) {
+      box.appendChild(el('div', { class: 'implied', style: 'margin:5px 0' },
+        el('span', { class: 'sub', text: r.name.slice(0, 20), style: 'width:120px;text-align:left;overflow:hidden;white-space:nowrap' }),
+        el('div', { class: 'bar', style: 'width:180px' }, el('i', { style: 'width:' + Math.max(2, Math.round(r.implied_value_usd / max * 100)) + '%' })),
+        el('span', { class: 'num', text: fmtUsd(r.implied_value_usd), style: 'width:70px' })
+      ));
+    });
+    return box;
+  }
+
   function lede() {
-    return el('section', { class: 'lede' },
+    return el('section', { class: 'hero' },
       el('div', null,
         el('h1', { text: 'Find the token that does not exist yet' }),
-        el('p', { text: 'A radar over protocols whose index entry records no token. The 40-record watchlist is the floor; the early radar adds pre-token protocols below it. Every row is ranked by an implied value computed from the snapshot, not from a hand-written name list.' })
+        el('p', { text: 'A radar over protocols whose index entry records no token. The 40-record watchlist is the floor; the early radar adds pre-token protocols below it. Every row is ranked by one function of the snapshot figures: TVL, seven-day growth and the time the record has run with no token. Live-token protocols are set aside.' }),
+        distribution()
       ),
       el('div', { class: 'facts' },
         el('div', { class: 'fact' }, el('span', { text: 'Watchlist covered' }), el('b', { text: DATA.watchlist_size + ' / ' + DATA.watchlist_size })),
